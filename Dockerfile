@@ -51,49 +51,49 @@ ARG UID=1000
 ARG GID=1000
 
 RUN \
-# add mode and permissions for files we added above
+  # add mode and permissions for files we added above
   chmod 0755 /usr/local/sbin/tini && \
   chown root:root /usr/local/sbin/tini && \
-# add our user and group first to make sure their IDs get assigned consistently,
-# regardless of whatever dependencies get added
-# add user to root group for gocd to work on openshift
+  # add our user and group first to make sure their IDs get assigned consistently,
+  # regardless of whatever dependencies get added
+  # add user to root group for gocd to work on openshift
   adduser -D -u ${UID} -s /bin/bash -G root go && \
-    apk add --no-cache cyrus-sasl cyrus-sasl-plain && \
+  apk add --no-cache cyrus-sasl cyrus-sasl-plain && \
   apk --no-cache upgrade && \
   apk add --no-cache nss git mercurial subversion openssh-client bash curl procps && \
   # install glibc and zlib for adoptopenjdk && \
   # See https://github.com/AdoptOpenJDK/openjdk-docker/blob/ce8b120411b131e283106ab89ea5921ebb1d1759/8/jdk/alpine/Dockerfile.hotspot.releases.slim#L24-L54 && \
-    apk add --no-cache --virtual .build-deps curl binutils && \
-    GLIBC_VER="2.29-r0" && \
-    ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
-    GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" && \
-    GCC_LIBS_SHA256=91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08 && \
-    ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" && \
-    ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 && \
-    curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub && \
-    SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" && \
-    echo "${SGERRAND_RSA_SHA256} */etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - && \
-    curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/glibc-${GLIBC_VER}.apk && \
-    apk add /tmp/glibc-${GLIBC_VER}.apk && \
-    curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-bin-${GLIBC_VER}.apk > /tmp/glibc-bin-${GLIBC_VER}.apk && \
-    apk add /tmp/glibc-bin-${GLIBC_VER}.apk && \
-    curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-i18n-${GLIBC_VER}.apk > /tmp/glibc-i18n-${GLIBC_VER}.apk && \
-    apk add /tmp/glibc-i18n-${GLIBC_VER}.apk && \
-    /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
-    echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
-    curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz && \
-    echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.xz" | sha256sum -c - && \
-    mkdir /tmp/gcc && \
-    tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc && \
-    mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib && \
-    strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* && \
-    curl -LfsS ${ZLIB_URL} -o /tmp/libz.tar.xz && \
-    echo "${ZLIB_SHA256} */tmp/libz.tar.xz" | sha256sum -c - && \
-    mkdir /tmp/libz && \
-    tar -xf /tmp/libz.tar.xz -C /tmp/libz && \
-    mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib && \
-    apk del --purge .build-deps glibc-i18n && \
-    rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/* && \
+  apk add --no-cache --virtual .build-deps curl binutils && \
+  GLIBC_VER="2.29-r0" && \
+  ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" && \
+  GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz" && \
+  GCC_LIBS_SHA256=91dba90f3c20d32fcf7f1dbe91523653018aa0b8d2230b00f822f6722804cf08 && \
+  ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.11-3-x86_64.pkg.tar.xz" && \
+  ZLIB_SHA256=17aede0b9f8baa789c5aa3f358fbf8c68a5f1228c5e6cba1a5dd34102ef4d4e5 && \
+  curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub && \
+  SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2" && \
+  echo "${SGERRAND_RSA_SHA256} */etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c - && \
+  curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-${GLIBC_VER}.apk > /tmp/glibc-${GLIBC_VER}.apk && \
+  apk add /tmp/glibc-${GLIBC_VER}.apk && \
+  curl -LfsS ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-bin-${GLIBC_VER}.apk > /tmp/glibc-bin-${GLIBC_VER}.apk && \
+  apk add /tmp/glibc-bin-${GLIBC_VER}.apk && \
+  curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VER}/glibc-i18n-${GLIBC_VER}.apk > /tmp/glibc-i18n-${GLIBC_VER}.apk && \
+  apk add /tmp/glibc-i18n-${GLIBC_VER}.apk && \
+  /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true && \
+  echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
+  curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.xz && \
+  echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.xz" | sha256sum -c - && \
+  mkdir /tmp/gcc && \
+  tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc && \
+  mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib && \
+  strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* && \
+  curl -LfsS ${ZLIB_URL} -o /tmp/libz.tar.xz && \
+  echo "${ZLIB_SHA256} */tmp/libz.tar.xz" | sha256sum -c - && \
+  mkdir /tmp/libz && \
+  tar -xf /tmp/libz.tar.xz -C /tmp/libz && \
+  mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib && \
+  apk del --purge .build-deps glibc-i18n && \
+  rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/* && \
   # end installing adoptopenjre  && \
   curl --fail --location --silent --show-error 'https://github.com/AdoptOpenJDK/openjdk13-binaries/releases/download/jdk-13.0.2%2B8/OpenJDK13U-jre_x64_linux_hotspot_13.0.2_8.tar.gz' --output /tmp/jre.tar.gz && \
   mkdir -p /gocd-jre && \
@@ -109,8 +109,62 @@ COPY --from=gocd-agent-unzip /go-agent /go-agent
 COPY --chown=go:root agent-bootstrapper-logback-include.xml agent-launcher-logback-include.xml agent-logback-include.xml /go-agent/config/
 
 RUN chown -R go:root /docker-entrypoint.d /go /godata /docker-entrypoint.sh \
-    && chmod -R g=u /docker-entrypoint.d /go /godata /docker-entrypoint.sh
+  && chmod -R g=u /docker-entrypoint.d /go /godata /docker-entrypoint.sh
 
+###--- MY ADDONS
+ENV TERRAFORM_VERSION=0.12.24 \
+  TERRAGRUNT_VERSION=0.23.10 \
+  AWS_VERSION=2.55.0 \
+  TEMPLATE_VERSION=2.1.2 \
+  EXTERNAl_VERSION=1.2.0 \
+  RANDOM_VERSION=2.2.1 \
+  LOCAL_VERSION=1.4.0 \
+  NULL_VERSION=2.1.2 \
+  PACKER_VERSION=1.5.5 \
+  HCL2JSON=0.1.
+
+RUN apk add --no-cache --update \
+  bzip2 \
+  ca-certificates \
+  build-base \
+  curl \
+  libffi-dev \
+  openssl-dev \
+  yaml-dev \
+  procps \
+  zlib-dev \
+  bash \
+  python3 \
+  python3-dev py3-pip jq
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+
+RUN curl -L -o /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" && \
+  curl -L -o /usr/local/bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" && \
+  curl -L -o /tmp/packer.zip "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" && \
+  curl -L -o /usr/local/bin/hcl2json "https://github.com/tmccombs/hcl2json/releases/download/v${HCL2JSON}/hcl2json_v${HCL2JSON}_linux_amd64" && \
+  unzip /tmp/terraform.zip -d /usr/local/bin/ && \
+  unzip /tmp/packer.zip -d /usr/local/bin/
+
+COPY terraformrc /root/.terraformrc
+RUN mkdir -pv /root/.terraform.d/plugin-cache/linux_amd64 /root/.terraform.d/plugins && \
+  curl -L -o /tmp/template.zip "https://releases.hashicorp.com/terraform-provider-template/${TEMPLATE_VERSION}/terraform-provider-template_${TEMPLATE_VERSION}_linux_amd64.zip" && \
+  curl -L -o /tmp/aws.zip "https://releases.hashicorp.com/terraform-provider-aws/${AWS_VERSION}/terraform-provider-aws_${AWS_VERSION}_linux_amd64.zip" && \
+  curl -L -o /tmp/external.zip "https://releases.hashicorp.com/terraform-provider-external/${EXTERNAl_VERSION}/terraform-provider-external_${EXTERNAl_VERSION}_linux_amd64.zip" && \
+  curl -L -o /tmp/random.zip "https://releases.hashicorp.com/terraform-provider-random/${RANDOM_VERSION}/terraform-provider-random_${RANDOM_VERSION}_linux_amd64.zip" && \
+  curl -L -o /tmp/null.zip "https://releases.hashicorp.com/terraform-provider-null/${NULL_VERSION}/terraform-provider-null_${NULL_VERSION}_linux_amd64.zip" && \
+  curl -L -o /tmp/local.zip "https://releases.hashicorp.com/terraform-provider-local/${LOCAL_VERSION}/terraform-provider-local_${LOCAL_VERSION}_linux_amd64.zip" && \
+  unzip /tmp/template.zip -d /root/.terraform.d/plugin-cache/linux_amd64/ && \
+  unzip /tmp/aws.zip -d /root/.terraform.d/plugin-cache/linux_amd64/ && \
+  unzip /tmp/external.zip -d /root/.terraform.d/plugin-cache/linux_amd64/ && \
+  unzip /tmp/random.zip -d /root/.terraform.d/plugin-cache/linux_amd64/ && \
+  unzip /tmp/null.zip -d /root/.terraform.d/plugin-cache/linux_amd64/ && \
+  unzip /tmp/local.zip -d /root/.terraform.d/plugin-cache/linux_amd64/ && \
+  chmod -v 0755 /root/.terraform.d/plugin-cache/linux_amd64/terraform-provider-* /usr/local/bin/*
+
+RUN rm -rf /tmp/*
+###
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
